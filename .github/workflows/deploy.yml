@@ -1,0 +1,44 @@
+name: Deploy Website
+
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+
+jobs:
+  test:                                   # CI: check the page before deploying
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check page has a heading
+        run: grep "<h1>" site/index.html && echo "Test passed ✅"
+
+
+  deploy:                                 # CD: put the page live
+    needs: test                           # only deploys if the test passes
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+
+      - name: Add build info to the page
+        run: sed -i "s/BUILD_INFO/Commit ${GITHUB_SHA::7} deployed at $(date)/" site/index.html
+
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deployment
+        uses: actions/deploy-pages@v4
