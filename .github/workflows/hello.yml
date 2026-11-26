@@ -1,0 +1,13 @@
+name: Hello CI/CD
+
+
+on: [push]                 # TRIGGER: run on every push
+
+
+jobs:
+  hello:                   # JOB name
+    runs-on: ubuntu-latest # RUNNER: a free Linux machine from GitHub
+    steps:                 # STEPS: commands to run
+      - run: echo "Hello! My first pipeline is running 🎉"
+      - run: date
+      - run: echo "This machine is:" && uname -a
